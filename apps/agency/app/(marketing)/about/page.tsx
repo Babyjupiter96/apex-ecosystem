@@ -38,19 +38,19 @@ const TEAM = [
 const VALUES = [
   {
     title: 'Radical transparency',
-    body: 'We show you exactly what we're doing and why. No mystery metrics. No inflated vanity numbers. Real results, honestly presented.',
+    body: "We show you exactly what we're doing and why. No mystery metrics. No inflated vanity numbers. Real results, honestly presented.",
   },
   {
     title: 'Strategy first',
-    body: 'We don't start designing until we understand your market, your buyer, and your competitive position. Tactics without strategy is noise.',
+    body: "We don't start designing until we understand your market, your buyer, and your competitive position. Tactics without strategy is noise.",
   },
   {
     title: 'Long-term thinking',
-    body: 'We'd rather turn down a project than set unrealistic expectations. Our reputation is built on clients who grow with us for years, not one-time engagements.',
+    body: "We'd rather turn down a project than set unrealistic expectations. Our reputation is built on clients who grow with us for years, not one-time engagements.",
   },
   {
     title: 'Craft at every layer',
-    body: 'From the typography on a landing page to the sequence logic in an automation workflow — details matter. We obsess over them so you don't have to.',
+    body: "From the typography on a landing page to the sequence logic in an automation workflow — details matter. We obsess over them so you don't have to.",
   },
 ]
 

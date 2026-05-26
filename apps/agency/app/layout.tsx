@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
 import { PostHogProvider } from '@/components/shared/PostHogProvider'
 import './globals.css'
 
@@ -69,10 +68,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <>
       <html lang="en" className={inter.variable} suppressHydrationWarning>
         <head>
-          {/* Preconnect to critical third parties */}
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link rel="preconnect" href="https://cdn.sanity.io" />
@@ -111,6 +109,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </PostHogProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </>
   )
 }

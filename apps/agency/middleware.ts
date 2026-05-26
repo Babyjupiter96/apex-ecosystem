@@ -1,41 +1,34 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { resolveTenant, injectTenantHeaders } from '@apex/auth/middleware'
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/about(.*)',
-  '/services(.*)',
-  '/work(.*)',
-  '/blog(.*)',
-  '/pricing(.*)',
-  '/contact(.*)',
-  '/funnels(.*)',
-  '/api/leads(.*)',
-  '/api/webhooks(.*)',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-])
+const CLERK_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  // 1. Resolve tenant from domain
+export async function middleware(req: NextRequest) {
   const tenant = resolveTenant(req)
-  if (!tenant) {
-    return NextResponse.redirect('https://studioapex.com')
+
+  if (!CLERK_KEY) {
+    if (!tenant) return NextResponse.next()
+    return injectTenantHeaders(req, tenant)
   }
 
-  // 2. Protect authenticated routes
-  if (!isPublicRoute(req)) {
-    await auth.protect()
-  }
+  const { clerkMiddleware, createRouteMatcher } = await import('@clerk/nextjs/server')
+  const isPublicRoute = createRouteMatcher([
+    '/', '/about(.*)', '/services(.*)', '/work(.*)', '/blog(.*)',
+    '/pricing(.*)', '/contact(.*)', '/funnels(.*)',
+    '/api/leads(.*)', '/api/webhooks(.*)', '/sign-in(.*)', '/sign-up(.*)',
+  ])
 
-  // 3. Inject tenant context headers
-  return injectTenantHeaders(req, tenant)
-})
+  const handler = clerkMiddleware(async (auth, request: NextRequest) => {
+    const t = resolveTenant(request)
+    if (!t) return NextResponse.redirect(new URL('/', request.url))
+    if (!isPublicRoute(request)) await auth.protect()
+    return injectTenantHeaders(request, t)
+  })
+
+  return handler(req, {} as any)
+}
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
 }

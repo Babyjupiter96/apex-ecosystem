@@ -3,10 +3,10 @@ import type { BlogPost } from '../types'
 export const BLOG_POSTS: BlogPost[] = [
   {
     _id: 'bp-001',
-    title: 'Why Your Brand Isn't Converting (And It's Not Your Ads)',
+    title: "Why Your Brand Isn't Converting (And It's Not Your Ads)",
     slug: 'brand-not-converting',
     excerpt:
-      'Most businesses blame their paid ads for poor conversion rates. The real culprit is almost always the brand. Here's how to diagnose and fix the problem.',
+      "Most businesses blame their paid ads for poor conversion rates. The real culprit is almost always the brand. Here's how to diagnose and fix the problem.",
     coverImageUrl: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&q=80',
     publishedAt: '2024-05-15',
     author: {
@@ -18,7 +18,7 @@ export const BLOG_POSTS: BlogPost[] = [
     body: null,
     featured: true,
     seo: {
-      title: 'Why Your Brand Isn't Converting — Studio Apex',
+      title: "Why Your Brand Isn't Converting — Studio Apex",
       description: 'Most businesses blame their paid ads for poor conversion rates. The real culprit is almost always the brand.',
     },
   },
@@ -27,7 +27,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'The 2024 SEO Playbook for Professional Services',
     slug: 'seo-playbook-professional-services-2024',
     excerpt:
-      'Law firms, consultancies, and agencies have unique SEO challenges. Here's the framework we use to dominate organic search in trust-dependent industries.',
+      "Law firms, consultancies, and agencies have unique SEO challenges. Here's the framework we use to dominate organic search in trust-dependent industries.",
     coverImageUrl: 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=1200&q=80',
     publishedAt: '2024-04-28',
     author: {
@@ -44,7 +44,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'How We Build Sales Funnels That Convert at 3x Industry Average',
     slug: 'sales-funnels-3x-conversion',
     excerpt:
-      'Our funnel methodology focuses on one thing most agencies ignore: the buyer's emotional journey. Here's the full framework with examples.',
+      "Our funnel methodology focuses on one thing most agencies ignore: the buyer's emotional journey. Here's the full framework with examples.",
     coverImageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80',
     publishedAt: '2024-04-10',
     author: {
@@ -58,7 +58,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     _id: 'bp-004',
-    title: 'The Website Metrics That Actually Matter (And The Ones That Don't)',
+    title: "The Website Metrics That Actually Matter (And The Ones That Don't)",
     slug: 'website-metrics-that-matter',
     excerpt:
       'Page views and bounce rate tell you almost nothing useful. Here are the five metrics we obsess over for every client website — and how to track them.',
@@ -78,7 +78,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'Marketing Automation in 2024: What Actually Works',
     slug: 'marketing-automation-2024',
     excerpt:
-      'AI tools have made it easier to automate — and easier to automate badly. Here's what separates automation that drives revenue from automation that just adds noise.',
+      "AI tools have made it easier to automate — and easier to automate badly. Here's what separates automation that drives revenue from automation that just adds noise.",
     coverImageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80',
     publishedAt: '2024-03-05',
     author: {
@@ -95,7 +95,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'Cold Email Is Dead. Long Live Cold Email.',
     slug: 'cold-email-not-dead',
     excerpt:
-      'Everyone says cold email is dead. Our clients generated 3,200 qualified meetings from cold email last year. Here's what we're doing differently.',
+      "Everyone says cold email is dead. Our clients generated 3,200 qualified meetings from cold email last year. Here's what we're doing differently.",
     coverImageUrl: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=1200&q=80',
     publishedAt: '2024-02-14',
     author: {

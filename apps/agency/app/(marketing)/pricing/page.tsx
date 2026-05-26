@@ -79,7 +79,7 @@ const FAQS = [
     a: 'No. The monthly rate is the full rate. We absorb onboarding costs because we expect long-term relationships.',
   },
   {
-    q: 'What's the minimum commitment?',
+    q: "What's the minimum commitment?",
     a: 'We ask for a 3-month initial commitment so we have time to build, test, and optimize. After that, month-to-month.',
   },
   {
@@ -88,7 +88,7 @@ const FAQS = [
   },
   {
     q: 'Do you work with startups?',
-    a: 'We work with startups that have product-market fit and are ready to invest in growth. Pre-revenue companies are a poor fit for retainer work — we'd be burning your runway without enough signal to optimize against.',
+    a: "We work with startups that have product-market fit and are ready to invest in growth. Pre-revenue companies are a poor fit for retainer work — we'd be burning your runway without enough signal to optimize against.",
   },
 ]
 

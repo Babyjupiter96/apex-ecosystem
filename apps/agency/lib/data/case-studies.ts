@@ -25,7 +25,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: '4 weeks', label: 'Delivery timeline' },
     ],
     testimonial: {
-      quote: 'Studio Apex didn't just design a logo — they helped us articulate who we actually are. Three LPs mentioned the brand in their due diligence notes. That's when I knew we'd made the right call.',
+      quote: "Studio Apex didn't just design a logo — they helped us articulate who we actually are. Three LPs mentioned the brand in their due diligence notes. That's when I knew we'd made the right call.",
       author: 'Marcus Reid',
       role: 'Managing Partner, Crestline Capital',
     },
@@ -42,7 +42,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     coverImageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1200&q=80',
     tagline: 'A content and technical SEO engine that made paid ads optional.',
     challenge:
-      'Meridian was spending $28k/month on Google Ads to generate 200 patient inquiry leads. Their organic search presence was almost non-existent despite a decade in business. The SEO agency they'd used previously had built 600 low-quality backlinks that were now a liability.',
+      "Meridian was spending $28k/month on Google Ads to generate 200 patient inquiry leads. Their organic search presence was almost non-existent despite a decade in business. The SEO agency they'd used previously had built 600 low-quality backlinks that were now a liability.",
     approach:
       'We started with a full technical audit — the site had 847 crawl errors, 12 redirect chains, and zero structured data. After technical remediation, we designed a topical authority strategy around their five core service areas, producing 3 in-depth clinical content pieces per month. We also built dedicated landing pages for every service × location combination, each with local schema markup.',
     results:
@@ -54,7 +54,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: '47', label: 'Page-one keyword rankings' },
     ],
     testimonial: {
-      quote: 'We were throwing money at Google every month. Studio Apex built us an organic machine. We've cut our ad budget by 70% and our leads are actually better quality.',
+      quote: "We were throwing money at Google every month. Studio Apex built us an organic machine. We've cut our ad budget by 70% and our leads are actually better quality.",
       author: 'Dr. Sarah Chen',
       role: 'CEO, Meridian Health Partners',
     },
@@ -73,7 +73,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     challenge:
       'Atlas had a complicated 9-step funnel with a 1.2% opt-in conversion rate and a 0.3% close rate. They had strong demand (running profitable ads) but were leaking money at every stage. Average client value was $15k but CAC was nearly $8k.',
     approach:
-      'We stripped everything back to first principles. Customer research interviews revealed the primary objection was trust (they'd been burned by consultants before). We rebuilt the funnel around social proof: a 12-minute VSL with three detailed client transformation stories, followed by a simple opt-in and a 5-email nurture sequence heavy on case studies and specific results.',
+      "We stripped everything back to first principles. Customer research interviews revealed the primary objection was trust (they'd been burned by consultants before). We rebuilt the funnel around social proof: a 12-minute VSL with three detailed client transformation stories, followed by a simple opt-in and a 5-email nurture sequence heavy on case studies and specific results.",
     results:
       'The new funnel launched in Q3 2023. Opt-in rate went from 1.2% to 6.8%. Close rate improved from 0.3% to 1.4%. Revenue grew 280% in 6 months, CAC dropped to $2,100, and ROAS on paid traffic went from 1.9x to 7.1x.',
     metrics: [
@@ -83,7 +83,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: '$2,100', label: 'Customer acquisition cost (from $8k)' },
     ],
     testimonial: {
-      quote: 'I was skeptical — we'd tried agencies before. But the process was completely different. They started by talking to our customers, not asking for our brand guidelines. The results speak for themselves.',
+      quote: "I was skeptical — we'd tried agencies before. But the process was completely different. They started by talking to our customers, not asking for our brand guidelines. The results speak for themselves.",
       author: 'James Okonkwo',
       role: 'Founder, Atlas Ventures Consulting',
     },
@@ -112,7 +112,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: '$380k', label: 'First project closed' },
     ],
     testimonial: {
-      quote: 'We had the talent. Studio Apex gave us the platform to show the world. The brand they built for us is something we're incredibly proud of — it attracts exactly the kind of clients we want to work with.',
+      quote: "We had the talent. Studio Apex gave us the platform to show the world. The brand they built for us is something we're incredibly proud of — it attracts exactly the kind of clients we want to work with.",
       author: 'Isabelle Fontaine',
       role: 'Co-Founder, Solaris Studio',
     },
@@ -129,7 +129,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     coverImageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&q=80',
     tagline: 'From founder-led everything to a system that runs while she sleeps.',
     challenge:
-      'Priya had built a $2M coaching business entirely on personal bandwidth. Every lead was manually nurtured. Every webinar was manually promoted. She was working 70-hour weeks and couldn't scale without burning out.',
+      "Priya had built a $2M coaching business entirely on personal bandwidth. Every lead was manually nurtured. Every webinar was manually promoted. She was working 70-hour weeks and couldn't scale without burning out.",
     approach:
       'We audited her existing tools (a mess of Kajabi, Mailchimp, and manual Calendly management) and designed a unified automation architecture on ActiveCampaign + HubSpot. Lead scoring based on email engagement, webinar attendance, and content consumption. Behavioral triggers for every stage of the buyer journey. AI-personalized subject lines and send-time optimization.',
     results:
@@ -141,7 +141,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: '35hrs', label: 'Weekly hours (down from 70)' },
     ],
     testimonial: {
-      quote: 'I was drowning. Now I have a business that grows while I take vacations. The ROI on automation is unlike anything else I've invested in.',
+      quote: "I was drowning. Now I have a business that grows while I take vacations. The ROI on automation is unlike anything else I've invested in.",
       author: 'Priya Sharma',
       role: 'Founder, Luminary Labs',
     },

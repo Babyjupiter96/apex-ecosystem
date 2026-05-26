@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Mail, Linkedin, Instagram, Twitter } from 'lucide-react'
+import { NewsletterForm } from './NewsletterForm'
 
 const SERVICES = [
   { href: '/services/brand-identity', label: 'Brand Identity' },
@@ -83,20 +84,7 @@ export function Footer() {
             <p className="text-sm text-brand-muted mb-4">
               Brand strategy, design insights, and growth tactics — delivered monthly.
             </p>
-            <form className="flex gap-2" onSubmit={e => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="your@email.com"
-                required
-                className="flex-1 h-10 px-3 text-sm bg-brand-black border border-brand-border text-brand-offwhite placeholder:text-brand-muted focus:outline-none focus:border-brand-gold rounded-sm"
-              />
-              <button
-                type="submit"
-                className="px-4 h-10 bg-brand-gold text-brand-black text-xs font-semibold uppercase tracking-wide hover:bg-brand-gold-light transition-colors rounded-sm"
-              >
-                Join
-              </button>
-            </form>
+            <NewsletterForm compact />
           </div>
         </div>
 

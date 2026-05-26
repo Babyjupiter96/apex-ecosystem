@@ -5,6 +5,7 @@ import { BLOG_POSTS, FEATURED_POST } from '@/lib/data/blog-posts'
 import { sanityFetch } from '@/lib/sanity'
 import { blogPostsQuery } from '@/lib/queries'
 import type { BlogPost } from '@/lib/types'
+import { NewsletterForm } from '@/components/agency/NewsletterForm'
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -153,20 +154,7 @@ export default async function BlogPage() {
             Monthly dispatch: what's working in growth marketing, real case study breakdowns,
             and tools worth your time. No spam.
           </p>
-          <form className="flex gap-3" onSubmit={e => e.preventDefault()}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              className="flex-1 h-12 px-4 bg-brand-black border border-brand-border text-brand-offwhite placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-gold text-sm rounded-sm"
-            />
-            <button
-              type="submit"
-              className="px-6 h-12 bg-brand-gold text-brand-black text-sm font-semibold uppercase tracking-wide hover:bg-brand-gold-light transition-colors rounded-sm whitespace-nowrap"
-            >
-              Subscribe
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </section>
     </>
