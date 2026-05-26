@@ -2,45 +2,44 @@
 import Link from 'next/link'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import { Palette, Globe, Search, TrendingUp, Zap, Users, ArrowRight } from 'lucide-react'
-import { staggerContainer, fadeUp } from '@apex/ui/animations'
+import { ArrowUpRight } from 'lucide-react'
 
 const SERVICES = [
   {
-    icon: Palette,
+    number: '01',
     title: 'Brand Identity',
     slug: 'brand-identity',
-    description: 'Logos, visual systems, and brand guidelines that command premium positioning.',
+    description: 'Logos, visual systems, and brand guidelines that command premium positioning and outlast trends.',
   },
   {
-    icon: Globe,
+    number: '02',
     title: 'Web Design',
     slug: 'web-design',
-    description: 'High-conversion websites built for performance, SEO, and customer delight.',
+    description: 'High-conversion websites built for performance, beauty, and search — not just award shows.',
   },
   {
-    icon: Search,
+    number: '03',
     title: 'SEO',
     slug: 'seo',
-    description: 'Technical and content SEO that drives qualified organic traffic at scale.',
+    description: 'Technical and content SEO that compounds over time, reducing dependence on paid acquisition.',
   },
   {
-    icon: TrendingUp,
+    number: '04',
     title: 'Sales Funnels',
     slug: 'sales-funnels',
-    description: 'Conversion-optimized funnels that turn visitors into high-ticket clients.',
+    description: 'End-to-end conversion systems that turn qualified traffic into high-ticket, closed revenue.',
   },
   {
-    icon: Zap,
+    number: '05',
     title: 'Marketing Automation',
     slug: 'marketing-automation',
-    description: 'AI-powered email sequences and workflows that nurture leads on autopilot.',
+    description: 'AI-driven email sequences and nurture flows that convert leads while you sleep.',
   },
   {
-    icon: Users,
+    number: '06',
     title: 'Lead Generation',
     slug: 'lead-generation',
-    description: 'Systematic lead gen strategies that fill your pipeline with qualified prospects.',
+    description: 'Systematic strategies that fill your pipeline with the right clients, not just any clients.',
   },
 ]
 
@@ -49,12 +48,13 @@ export function ServicesGrid() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="py-32 bg-brand-black" aria-labelledby="services-heading">
+    <section ref={ref} className="py-32 bg-brand-graphite" aria-labelledby="services-heading">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16 gap-6">
+        {/* Header */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
           <div>
             <motion.p
-              className="text-brand-gold uppercase tracking-widest text-xs font-semibold mb-4"
+              className="text-brand-gold uppercase tracking-[0.35em] text-xs font-semibold mb-6"
               initial={{ opacity: 0 }}
               animate={inView ? { opacity: 1 } : {}}
             >
@@ -62,54 +62,66 @@ export function ServicesGrid() {
             </motion.p>
             <motion.h2
               id="services-heading"
-              className="text-5xl lg:text-6xl font-display font-light text-brand-offwhite"
+              className="text-5xl lg:text-6xl font-display font-light text-brand-offwhite leading-[1.05]"
               initial={{ opacity: 0, y: 24 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
-              Full-stack growth
+              Every lever
+              <br />
+              that drives growth
             </motion.h2>
           </div>
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.3 }}
+            className="lg:pt-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.25, duration: 0.6 }}
           >
+            <p className="text-brand-muted text-lg leading-relaxed">
+              We don&apos;t hand you off to junior staff or outsource offshore. Every engagement is run by senior strategists who care about outcomes, not deliverables.
+            </p>
             <Link
               href="/services"
-              className="text-sm text-brand-muted hover:text-brand-gold transition-colors uppercase tracking-widest inline-flex items-center gap-2"
+              className="group mt-8 inline-flex items-center gap-2 text-brand-offwhite text-sm font-semibold uppercase tracking-widest border-b border-brand-border hover:border-brand-gold transition-colors pb-1"
             >
-              All Services <ArrowRight className="w-4 h-4" />
+              Explore all services
+              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Link>
           </motion.div>
         </div>
 
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-brand-border"
-          variants={staggerContainer}
-          initial="hidden"
-          animate={inView ? 'visible' : 'hidden'}
-        >
-          {SERVICES.map(({ icon: Icon, title, slug, description }) => (
-            <motion.div key={slug} variants={fadeUp}>
+        {/* Service list */}
+        <div className="border-t border-brand-border">
+          {SERVICES.map((service, i) => (
+            <motion.div
+              key={service.slug}
+              initial={{ opacity: 0, y: 16 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.1 + i * 0.07, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
               <Link
-                href={`/services/${slug}`}
-                className="group block bg-brand-black p-8 hover:bg-brand-graphite transition-colors duration-300 h-full"
+                href={`/services/${service.slug}`}
+                className="group flex items-start gap-8 py-8 border-b border-brand-border hover:pl-2 transition-all duration-300"
               >
-                <div className="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg border border-brand-border group-hover:border-brand-gold/30 transition-colors">
-                  <Icon className="w-5 h-5 text-brand-gold" />
-                </div>
-                <h3 className="text-xl font-semibold text-brand-offwhite mb-3 group-hover:text-brand-gold transition-colors">
-                  {title}
-                </h3>
-                <p className="text-brand-muted text-sm leading-relaxed mb-6">{description}</p>
-                <span className="text-xs text-brand-gold uppercase tracking-widest font-semibold inline-flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Learn More <ArrowRight className="w-3 h-3" />
+                <span className="text-xs text-brand-muted font-mono pt-1.5 shrink-0 w-8">
+                  {service.number}
                 </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-2xl lg:text-3xl font-display font-light text-brand-offwhite group-hover:text-brand-gold transition-colors duration-300">
+                      {service.title}
+                    </h3>
+                    <ArrowUpRight className="w-5 h-5 text-brand-muted group-hover:text-brand-gold transition-colors shrink-0 mt-1.5 opacity-0 group-hover:opacity-100 translate-x-0 group-hover:translate-x-1 group-hover:-translate-y-1 duration-300" />
+                  </div>
+                  <p className="text-brand-muted text-sm leading-relaxed mt-2 max-w-2xl">
+                    {service.description}
+                  </p>
+                </div>
               </Link>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
