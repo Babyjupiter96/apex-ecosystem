@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   * {
@@ -38,12 +38,12 @@
 
   /* Focus styles */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-gold ring-offset-2 ring-offset-brand-black;
+    @apply outline-none ring-2 ring-brand-offwhite ring-offset-2 ring-offset-brand-black;
   }
 
   /* Selection */
   ::selection {
-    @apply bg-brand-gold/20 text-brand-gold;
+    @apply bg-brand-offwhite/10 text-brand-offwhite;
   }
 }
 
@@ -56,9 +56,9 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   }
 
-  /* Gradient text */
+  /* Gradient text — charcoal on light */
   .text-gradient-gold {
-    background: linear-gradient(135deg, #C9A84C, #E8D078, #C9A84C);
+    background: linear-gradient(135deg, #111111, #555555, #111111);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

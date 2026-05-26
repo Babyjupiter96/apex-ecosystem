@@ -14,7 +14,7 @@ export function TestimonialsSection() {
   return (
     <section
       ref={ref}
-      className="py-32 bg-brand-black relative overflow-hidden"
+      className="py-24 bg-brand-black relative overflow-hidden"
       aria-labelledby="testimonials-heading"
     >
       <div className="relative max-w-7xl mx-auto px-6 lg:px-12">
