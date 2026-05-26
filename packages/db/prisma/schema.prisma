@@ -1,0 +1,816 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_DIRECT_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum TenantPlan {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  TENANT_ADMIN
+  STAFF
+  CLIENT
+  GUEST
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL_SENT
+  NEGOTIATING
+  CLOSED_WON
+  CLOSED_LOST
+  NURTURE
+}
+
+enum LeadSource {
+  ORGANIC_SEARCH
+  PAID_SEARCH
+  SOCIAL_ORGANIC
+  SOCIAL_PAID
+  REFERRAL
+  DIRECT
+  EMAIL
+  PODCAST
+  EVENT
+  COLD_OUTREACH
+  AI_CHATBOT
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+  RESCHEDULED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELLED
+  PAUSED
+}
+
+enum AutomationTrigger {
+  LEAD_CREATED
+  LEAD_STAGE_CHANGED
+  APPOINTMENT_BOOKED
+  APPOINTMENT_COMPLETED
+  FORM_SUBMITTED
+  PAGE_VIEWED
+  EMAIL_OPENED
+  PAYMENT_RECEIVED
+  SUBSCRIPTION_STARTED
+  SUBSCRIPTION_CANCELLED
+  INACTIVITY
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+}
+
+// ─── MULTI-TENANT ─────────────────────────────────────────────────────────────
+
+model Tenant {
+  id         String     @id @default(uuid())
+  slug       String     @unique
+  name       String
+  domain     String     @unique
+  logoUrl    String?
+  faviconUrl String?
+  plan       TenantPlan @default(STARTER)
+  isActive   Boolean    @default(true)
+  settings   Json       @default("{}")
+  metadata   Json       @default("{}")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  users            UserTenant[]
+  leads            Lead[]
+  contacts         Contact[]
+  organizations    Organization[]
+  appointments     Appointment[]
+  invoices         Invoice[]
+  subscriptions    Subscription[]
+  forms            Form[]
+  funnels          Funnel[]
+  automations      Automation[]
+  analyticsEvents  AnalyticsEvent[]
+  blogPosts        BlogPost[]
+  mediaAssets      MediaAsset[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+  apiKeys          ApiKey[]
+  webhooks         Webhook[]
+  featureFlags     FeatureFlag[]
+  microsites       Microsite[]
+  pipelines        Pipeline[]
+
+  @@index([slug])
+  @@index([domain])
+  @@map("tenants")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  clerkId     String    @unique
+  email       String    @unique
+  firstName   String?
+  lastName    String?
+  avatarUrl   String?
+  phone       String?
+  timezone    String    @default("America/New_York")
+  preferences Json      @default("{}")
+  lastSeenAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tenants       UserTenant[]
+  sessions      UserSession[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  createdLeads  Lead[]         @relation("LeadCreatedBy")
+  assignedLeads Lead[]         @relation("LeadAssignedTo")
+
+  @@index([email])
+  @@index([clerkId])
+  @@map("users")
+}
+
+model UserTenant {
+  id       String   @id @default(uuid())
+  userId   String
+  tenantId String
+  role     UserRole @default(CLIENT)
+  isActive Boolean  @default(true)
+  joinedAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+  @@index([tenantId])
+  @@index([userId])
+  @@map("user_tenants")
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  tenantId     String
+  ipAddress    String?
+  userAgent    String?
+  sessionToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@map("user_sessions")
+}
+
+// ─── CRM ──────────────────────────────────────────────────────────────────────
+
+model Contact {
+  id              String    @id @default(uuid())
+  tenantId        String
+  email           String
+  firstName       String?
+  lastName        String?
+  phone           String?
+  company         String?
+  jobTitle        String?
+  linkedinUrl     String?
+  website         String?
+  avatarUrl       String?
+  tags            String[]  @default([])
+  customFields    Json      @default("{}")
+  aiScore         Float?
+  aiInsights      String?
+  lastContactedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tenantId_     String?
+  organizationId String?
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  leads        Lead[]
+  appointments Appointment[]
+  emails       EmailLog[]
+  notes        ContactNote[]
+  activities   ContactActivity[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([email])
+  @@index([aiScore])
+  @@map("contacts")
+}
+
+model ContactNote {
+  id        String   @id @default(uuid())
+  contactId String
+  authorId  String
+  content   String
+  isPrivate Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@map("contact_notes")
+}
+
+model ContactActivity {
+  id         String   @id @default(uuid())
+  contactId  String
+  type       String
+  summary    String
+  metadata   Json     @default("{}")
+  occurredAt DateTime @default(now())
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([occurredAt])
+  @@map("contact_activities")
+}
+
+model Organization {
+  id           String   @id @default(uuid())
+  tenantId     String
+  name         String
+  domain       String?
+  industry     String?
+  size         String?
+  website      String?
+  logoUrl      String?
+  address      Json?
+  customFields Json     @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  contacts Contact[]
+  leads    Lead[]
+
+  @@index([tenantId])
+  @@map("organizations")
+}
+
+model Lead {
+  id              String     @id @default(uuid())
+  tenantId        String
+  contactId       String?
+  organizationId  String?
+  title           String
+  status          LeadStatus @default(NEW)
+  source          LeadSource @default(ORGANIC_SEARCH)
+  value           Float?
+  probability     Float      @default(0.5)
+  expectedCloseAt DateTime?
+  closedAt        DateTime?
+  lostReason      String?
+  notes           String?
+  tags            String[]   @default([])
+  customFields    Json       @default("{}")
+  aiScore         Float?
+  aiSummary       String?
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  utmContent      String?
+  utmTerm         String?
+  referralUrl     String?
+  landingPage     String?
+  createdById     String
+  assignedToId    String?
+  pipelineId      String?
+  stageId         String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  tenant       Tenant         @relation(fields: [tenantId], references: [id])
+  contact      Contact?       @relation(fields: [contactId], references: [id])
+  organization Organization?  @relation(fields: [organizationId], references: [id])
+  createdBy    User           @relation("LeadCreatedBy", fields: [createdById], references: [id])
+  assignedTo   User?          @relation("LeadAssignedTo", fields: [assignedToId], references: [id])
+  pipeline     Pipeline?      @relation(fields: [pipelineId], references: [id])
+  stage        PipelineStage? @relation(fields: [stageId], references: [id])
+  activities   LeadActivity[]
+  submissions  FormSubmission[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([assignedToId])
+  @@index([createdAt])
+  @@index([aiScore])
+  @@map("leads")
+}
+
+model LeadActivity {
+  id         String   @id @default(uuid())
+  leadId     String
+  type       String
+  summary    String
+  metadata   Json     @default("{}")
+  occurredAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_activities")
+}
+
+model Pipeline {
+  id        String  @id @default(uuid())
+  tenantId  String
+  name      String
+  isDefault Boolean @default(false)
+
+  tenant Tenant          @relation(fields: [tenantId], references: [id])
+  stages PipelineStage[]
+  leads  Lead[]
+
+  @@index([tenantId])
+  @@map("pipelines")
+}
+
+model PipelineStage {
+  id         String @id @default(uuid())
+  pipelineId String
+  name       String
+  order      Int
+  color      String @default("#6B7280")
+
+  pipeline Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  leads    Lead[]
+
+  @@index([pipelineId])
+  @@map("pipeline_stages")
+}
+
+// ─── APPOINTMENTS ─────────────────────────────────────────────────────────────
+
+model Appointment {
+  id              String            @id @default(uuid())
+  tenantId        String
+  contactId       String?
+  title           String
+  description     String?
+  status          AppointmentStatus @default(SCHEDULED)
+  type            String
+  startAt         DateTime
+  endAt           DateTime
+  timezone        String
+  location        String?
+  calendlyEventId String?           @unique
+  calendlyUri     String?
+  notes           String?
+  noShowReason    String?
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  contact Contact? @relation(fields: [contactId], references: [id])
+
+  @@index([tenantId])
+  @@index([startAt])
+  @@index([contactId])
+  @@map("appointments")
+}
+
+// ─── BILLING ──────────────────────────────────────────────────────────────────
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  tenantId             String
+  contactId            String?
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  stripeProductId      String?
+  status               SubscriptionStatus @default(TRIALING)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  cancelledAt          DateTime?
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  metadata             Json               @default("{}")
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  invoices Invoice[]
+
+  @@index([tenantId])
+  @@index([stripeCustomerId])
+  @@map("subscriptions")
+}
+
+model Invoice {
+  id              String    @id @default(uuid())
+  tenantId        String
+  subscriptionId  String?
+  stripeInvoiceId String?   @unique
+  number          String    @unique
+  status          String
+  amountDue       Int
+  amountPaid      Int       @default(0)
+  currency        String    @default("usd")
+  dueDate         DateTime?
+  paidAt          DateTime?
+  items           Json      @default("[]")
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([tenantId])
+  @@index([status])
+  @@map("invoices")
+}
+
+// ─── FORMS & FUNNELS ──────────────────────────────────────────────────────────
+
+model Form {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  slug      String
+  schema    Json
+  settings  Json     @default("{}")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant      Tenant           @relation(fields: [tenantId], references: [id])
+  submissions FormSubmission[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("forms")
+}
+
+model FormSubmission {
+  id          String   @id @default(uuid())
+  formId      String
+  leadId      String?
+  data        Json
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  utmParams   Json     @default("{}")
+  submittedAt DateTime @default(now())
+
+  form Form  @relation(fields: [formId], references: [id])
+  lead Lead? @relation(fields: [leadId], references: [id])
+
+  @@index([formId])
+  @@index([submittedAt])
+  @@map("form_submissions")
+}
+
+model Funnel {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  slug      String
+  steps     Json
+  settings  Json     @default("{}")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant   Tenant          @relation(fields: [tenantId], references: [id])
+  sessions FunnelSession[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("funnels")
+}
+
+model FunnelSession {
+  id          String    @id @default(uuid())
+  funnelId    String
+  sessionId   String    @unique
+  currentStep Int       @default(0)
+  data        Json      @default("{}")
+  completedAt DateTime?
+  startedAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  funnel Funnel @relation(fields: [funnelId], references: [id])
+
+  @@index([funnelId])
+  @@map("funnel_sessions")
+}
+
+// ─── CONTENT ──────────────────────────────────────────────────────────────────
+
+model BlogPost {
+  id               String    @id @default(uuid())
+  tenantId         String
+  sanityId         String?
+  slug             String
+  title            String
+  excerpt          String?
+  authorId         String?
+  publishedAt      DateTime?
+  featuredImageUrl String?
+  tags             String[]  @default([])
+  categories       String[]  @default([])
+  readingTime      Int?
+  viewCount        Int       @default(0)
+  seoTitle         String?
+  seoDescription   String?
+  seoOgImage       String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([publishedAt])
+  @@map("blog_posts")
+}
+
+// ─── AI AUTOMATION ────────────────────────────────────────────────────────────
+
+model Automation {
+  id          String            @id @default(uuid())
+  tenantId    String
+  name        String
+  description String?
+  trigger     AutomationTrigger
+  conditions  Json              @default("[]")
+  actions     Json              @default("[]")
+  isActive    Boolean           @default(true)
+  runCount    Int               @default(0)
+  lastRunAt   DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  tenant Tenant          @relation(fields: [tenantId], references: [id])
+  runs   AutomationRun[]
+
+  @@index([tenantId])
+  @@index([trigger])
+  @@map("automations")
+}
+
+model AutomationRun {
+  id           String    @id @default(uuid())
+  automationId String
+  entityType   String
+  entityId     String
+  status       String
+  output       Json      @default("{}")
+  error        String?
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+
+  automation Automation @relation(fields: [automationId], references: [id])
+
+  @@index([automationId])
+  @@index([startedAt])
+  @@map("automation_runs")
+}
+
+model AiConversation {
+  id        String   @id @default(uuid())
+  tenantId  String
+  contactId String?
+  sessionId String
+  channel   String
+  messages  Json     @default("[]")
+  summary   String?
+  resolved  Boolean  @default(false)
+  handedOff Boolean  @default(false)
+  startedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([sessionId])
+  @@map("ai_conversations")
+}
+
+// ─── ANALYTICS ────────────────────────────────────────────────────────────────
+
+model AnalyticsEvent {
+  id         String   @id @default(uuid())
+  tenantId   String
+  sessionId  String
+  contactId  String?
+  event      String
+  properties Json     @default("{}")
+  url        String?
+  referrer   String?
+  userAgent  String?
+  ipAddress  String?
+  country    String?
+  city       String?
+  device     String?
+  os         String?
+  browser    String?
+  occurredAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, event])
+  @@index([tenantId, occurredAt])
+  @@index([sessionId])
+  @@map("analytics_events")
+}
+
+// ─── MEDIA ────────────────────────────────────────────────────────────────────
+
+model MediaAsset {
+  id           String    @id @default(uuid())
+  tenantId     String
+  type         MediaType
+  filename     String
+  url          String
+  cdnUrl       String?
+  mimeType     String
+  sizeBytes    Int
+  width        Int?
+  height       Int?
+  altText      String?
+  caption      String?
+  tags         String[]  @default([])
+  metadata     Json      @default("{}")
+  uploadedById String?
+  createdAt    DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([type])
+  @@map("media_assets")
+}
+
+// ─── INFRASTRUCTURE ───────────────────────────────────────────────────────────
+
+model Microsite {
+  id           String    @id @default(uuid())
+  tenantId     String
+  clientName   String
+  slug         String    @unique
+  subdomain    String    @unique
+  customDomain String?
+  config       Json
+  isActive     Boolean   @default(true)
+  publishedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("microsites")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  tenantId   String
+  name       String
+  keyHash    String    @unique
+  prefix     String
+  scopes     String[]  @default([])
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([prefix])
+  @@map("api_keys")
+}
+
+model Webhook {
+  id         String    @id @default(uuid())
+  tenantId   String
+  url        String
+  secret     String
+  events     String[]  @default([])
+  isActive   Boolean   @default(true)
+  failCount  Int       @default(0)
+  lastSentAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("webhooks")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  tenantId  String
+  userId    String
+  type      String
+  title     String
+  body      String
+  data      Json      @default("{}")
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([userId, readAt])
+  @@index([tenantId])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  tenantId   String
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User?  @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model EmailLog {
+  id         String    @id @default(uuid())
+  tenantId   String
+  contactId  String?
+  resendId   String?   @unique
+  from       String
+  to         String
+  subject    String
+  templateId String?
+  status     String
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  bouncedAt  DateTime?
+  metadata   Json      @default("{}")
+  sentAt     DateTime  @default(now())
+
+  contact Contact? @relation(fields: [contactId], references: [id])
+
+  @@index([contactId])
+  @@index([status])
+  @@map("email_logs")
+}
+
+model FeatureFlag {
+  id          String   @id @default(uuid())
+  tenantId    String?
+  key         String
+  value       Boolean  @default(false)
+  rolloutPct  Float    @default(0)
+  conditions  Json     @default("{}")
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, key])
+  @@map("feature_flags")
+}

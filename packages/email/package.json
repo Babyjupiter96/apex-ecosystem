@@ -1,0 +1,23 @@
+{
+  "name": "@apex/email",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./templates/*": "./src/templates/*.tsx"
+  },
+  "dependencies": {
+    "@apex/types": "workspace:*",
+    "@react-email/components": "^0.0.22",
+    "react": "^18.3.0",
+    "resend": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.5.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  }
+}

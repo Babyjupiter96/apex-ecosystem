@@ -1,0 +1,40 @@
+{
+  "name": "agency",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@apex/analytics": "workspace:*",
+    "@apex/auth": "workspace:*",
+    "@apex/config": "workspace:*",
+    "@apex/db": "workspace:*",
+    "@apex/email": "workspace:*",
+    "@apex/types": "workspace:*",
+    "@apex/ui": "workspace:*",
+    "@clerk/nextjs": "^5.3.0",
+    "@sanity/client": "^6.21.0",
+    "@sanity/image-url": "^1.1.0",
+    "framer-motion": "^11.3.0",
+    "gsap": "^3.12.5",
+    "next": "^14.2.0",
+    "next-sanity": "^9.4.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.5.0"
+  }
+}

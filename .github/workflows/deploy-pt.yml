@@ -1,0 +1,76 @@
+name: Deploy PT
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/pt/**"
+      - "packages/**"
+      - ".github/workflows/deploy-pt.yml"
+      - "infrastructure/docker/pt.Dockerfile"
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: apex-pt
+  ECS_CLUSTER: apex-production
+  ECS_SERVICE: apex-pt-web
+
+jobs:
+  deploy:
+    name: Build & Deploy PT
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        id: build
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build \
+            --file infrastructure/docker/pt.Dockerfile \
+            --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="${{ secrets.CLERK_PK_PT }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}" \
+            --build-arg NEXT_PUBLIC_SITE_URL="https://apexperformance.io" \
+            --tag $IMAGE_URI \
+            --tag $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            .
+          docker push $IMAGE_URI
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
+
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment
+
+      - name: Wait for stability
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CF_DISTRIBUTION_PT }} \
+            --paths "/*"

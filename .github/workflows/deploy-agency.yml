@@ -1,0 +1,118 @@
+name: Deploy Agency
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/agency/**"
+      - "packages/**"
+      - ".github/workflows/deploy-agency.yml"
+      - "infrastructure/docker/agency.Dockerfile"
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: apex-agency
+  ECS_CLUSTER: apex-production
+  ECS_SERVICE: apex-agency-web
+
+jobs:
+  deploy:
+    name: Build & Deploy Agency
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write   # OIDC for AWS auth (no long-lived secrets)
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Authenticate to AWS via OIDC ──────────────────────────────────────
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ── Build & push Docker image ─────────────────────────────────────────
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        id: build
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          LATEST_URI=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          docker build \
+            --file infrastructure/docker/agency.Dockerfile \
+            --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="${{ secrets.CLERK_PK_AGENCY }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}" \
+            --build-arg NEXT_PUBLIC_SANITY_PROJECT_ID="${{ secrets.SANITY_PROJECT_ID }}" \
+            --build-arg NEXT_PUBLIC_SANITY_DATASET="production" \
+            --build-arg NEXT_PUBLIC_SITE_URL="https://studioapex.com" \
+            --cache-from $LATEST_URI \
+            --tag $IMAGE_URI \
+            --tag $LATEST_URI \
+            .
+
+          docker push $IMAGE_URI
+          docker push $LATEST_URI
+          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
+
+      # ── Run DB migrations ─────────────────────────────────────────────────
+      - name: Run database migrations
+        run: |
+          aws ecs run-task \
+            --cluster $ECS_CLUSTER \
+            --task-definition apex-db-migrator \
+            --launch-type FARGATE \
+            --network-configuration '{"awsvpcConfiguration":{"subnets":["${{ secrets.PRIVATE_SUBNET_ID }}"],"securityGroups":["${{ secrets.MIGRATOR_SG_ID }}"],"assignPublicIp":"DISABLED"}}' \
+            --overrides '{"containerOverrides":[{"name":"migrator","command":["pnpm","db:migrate"]}]}' \
+            --region ${{ env.AWS_REGION }}
+
+      # ── Deploy to ECS ─────────────────────────────────────────────────────
+      - name: Deploy to ECS (force new deployment)
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Wait for ECS service to stabilize
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --region ${{ env.AWS_REGION }}
+
+      # ── CloudFront invalidation ───────────────────────────────────────────
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CF_DISTRIBUTION_AGENCY }} \
+            --paths "/*"
+
+      # ── Notify Sentry of new release ──────────────────────────────────────
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: agency-web
+        with:
+          environment: production
+          version: ${{ github.sha }}
+
+      # ── Deployment summary ────────────────────────────────────────────────
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Agency Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ steps.build.outputs.image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://studioapex.com" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,55 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+.next
+out
+dist
+build
+.turbo
+
+# Environment files
+.env
+.env.local
+.env.production.local
+.env.staging.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime
+.DS_Store
+*.pem
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+
+# Prisma
+packages/db/prisma/migrations/*.sql.bak
+
+# Terraform
+infrastructure/terraform/**/.terraform
+infrastructure/terraform/**/*.tfstate
+infrastructure/terraform/**/*.tfstate.backup
+infrastructure/terraform/**/.terraform.lock.hcl
+infrastructure/terraform/**/terraform.tfvars
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Sanity
+.sanity
+
+# Misc
+*.tsbuildinfo
